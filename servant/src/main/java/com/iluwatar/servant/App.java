@@ -1,6 +1,32 @@
+/**
+ * The MIT License
+ * Copyright (c) 2014-2016 Ilkka Seppälä
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 package com.iluwatar.servant;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -12,6 +38,8 @@ import java.util.ArrayList;
  *
  */
 public class App {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(App.class);
 
   static Servant jenkins = new Servant("Jenkins");
   static Servant travis = new Servant("Travis");
@@ -31,7 +59,7 @@ public class App {
     King k = new King();
     Queen q = new Queen();
 
-    ArrayList<Royalty> guests = new ArrayList<>();
+    List<Royalty> guests = new ArrayList<>();
     guests.add(k);
     guests.add(q);
 
@@ -51,9 +79,9 @@ public class App {
 
     // check your luck
     if (servant.checkIfYouWillBeHanged(guests)) {
-      System.out.println(servant.name + " will live another day");
+      LOGGER.info("{} will live another day", servant.name);
     } else {
-      System.out.println("Poor " + servant.name + ". His days are numbered");
+      LOGGER.info("Poor {}. His days are numbered", servant.name);
     }
   }
 }

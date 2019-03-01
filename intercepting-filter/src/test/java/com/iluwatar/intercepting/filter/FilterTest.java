@@ -1,24 +1,43 @@
+/**
+ * The MIT License
+ * Copyright (c) 2014-2016 Ilkka Seppälä
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 package com.iluwatar.intercepting.filter;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static junit.framework.TestCase.assertSame;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 /**
  * Date: 12/13/15 - 2:17 PM
  *
  * @author Jeroen Meulemeester
  */
-@RunWith(Parameterized.class)
 public class FilterTest {
 
   private static final Order PERFECT_ORDER = new Order("name", "12345678901", "addr", "dep", "order");
@@ -28,8 +47,7 @@ public class FilterTest {
   private static final Order WRONG_CONTACT = new Order("name", "", "addr", "dep", "order");
   private static final Order WRONG_NAME = new Order("", "12345678901", "addr", "dep", "order");
 
-  @Parameters
-  public static List<Object[]> getTestData() {
+  static List<Object[]> getTestData() {
     final List<Object[]> testData = new ArrayList<>();
     testData.add(new Object[]{new NameFilter(), PERFECT_ORDER, ""});
     testData.add(new Object[]{new NameFilter(), WRONG_NAME, "Invalid name!"});
@@ -69,30 +87,19 @@ public class FilterTest {
     return testData;
   }
 
-  private final Filter filter;
-  private final Order order;
-  private final String result;
-
-  /**
-   * Constructor
-   */
-  public FilterTest(Filter filter, Order order, String result) {
-    this.filter = filter;
-    this.order = order;
-    this.result = result;
-  }
-
-  @Test
-  public void testExecute() throws Exception {
-    final String result = this.filter.execute(this.order);
+  @ParameterizedTest
+  @MethodSource("getTestData")
+  public void testExecute(Filter filter, Order order, String expectedResult) {
+    final String result = filter.execute(order);
     assertNotNull(result);
-    assertEquals(this.result, result.trim());
+    assertEquals(expectedResult, result.trim());
   }
 
-  @Test
-  public void testNext() throws Exception {
-    assertNull(this.filter.getNext());
-    assertSame(this.filter, this.filter.getLast());
+  @ParameterizedTest
+  @MethodSource("getTestData")
+  public void testNext(Filter filter) {
+    assertNull(filter.getNext());
+    assertSame(filter, filter.getLast());
   }
 
 }

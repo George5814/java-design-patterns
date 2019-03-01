@@ -3,7 +3,7 @@ layout: page
 title: FAQ
 permalink: /faq/
 icon: fa-question
-page-index: 1
+page-index: 5
 ---
 
 ### Q1: What is the difference between State and Strategy patterns? {#Q1}
@@ -65,3 +65,22 @@ Flyweight.
 ### Q7: What are the differences between FluentInterface and Builder patterns? {#Q7}
 
 Fluent interfaces are sometimes confused with the Builder pattern, because they share method chaining and a fluent usage. However, fluent interfaces are not primarily used to create shared (mutable) objects, but to configure complex objects without having to respecify the target object on every property change. 
+
+### Q8: What is the difference between java.io.Serialization and Memento pattern? {#Q8}
+
+Memento is typically used to implement rollback/save-point support. Example we might want to mark the state of an object at a point in time, do some work and then decide to rollback to the previous state. 
+
+On the other hand serialization may be used as a tool to save the state of an object into byte[] and preserving the contents in memory or disk. When someone invokes the memento to revert object's previous state then we can deserialize the information stored and recreate previous state. 
+
+So Memento is a pattern and serialization is a tool that can be used to implement this pattern. Other ways to implement the pattern can be to clone the contents of the object and keep track of those clones.
+
+
+### Q9: What's the difference between “API Gateway” and “Aggregator Microservices”? Isn't it the same? {#Q9}
+
+The API Gateway : Aggregate calls to microservices in a single location. The user makes a single call to the API Gateway, and the API Gateway then calls each relevant microservice.
+Use the API Gateway pattern when you're also using the Microservices pattern and need a single point of aggregation for your microservice calls.
+
+Aggregator Microservices : The user makes a single call to the Aggregator, and the aggregator then calls each relevant microservice and collects the data, apply business logic to it, and further publish is as a REST Endpoint.Use the Aggregator Microservices pattern when you need a unified API for various microservices, regardless the client device.
+
+
+

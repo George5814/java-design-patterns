@@ -1,3 +1,25 @@
+/**
+ * The MIT License
+ * Copyright (c) 2014-2016 Ilkka Seppälä
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 package com.iluwatar.caching;
 
 import java.text.ParseException;
@@ -11,7 +33,7 @@ import java.text.ParseException;
  * CacheStore class.
  *
  */
-public class AppManager {
+public final class AppManager {
 
   private static CachingPolicy cachingPolicy;
 
@@ -42,12 +64,7 @@ public class AppManager {
   public static void initCachingPolicy(CachingPolicy policy) {
     cachingPolicy = policy;
     if (cachingPolicy == CachingPolicy.BEHIND) {
-      Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-        @Override
-        public void run() {
-          CacheStore.flushCache();
-        }
-      }));
+      Runtime.getRuntime().addShutdownHook(new Thread(CacheStore::flushCache));
     }
     CacheStore.clearCache();
   }
@@ -64,6 +81,8 @@ public class AppManager {
       return CacheStore.readThrough(userId);
     } else if (cachingPolicy == CachingPolicy.BEHIND) {
       return CacheStore.readThroughWithWriteBackPolicy(userId);
+    } else if (cachingPolicy == CachingPolicy.ASIDE) {
+      return findAside(userId);
     }
     return null;
   }
@@ -78,10 +97,37 @@ public class AppManager {
       CacheStore.writeAround(userAccount);
     } else if (cachingPolicy == CachingPolicy.BEHIND) {
       CacheStore.writeBehind(userAccount);
+    } else if (cachingPolicy == CachingPolicy.ASIDE) {
+      saveAside(userAccount);
     }
   }
 
   public static String printCacheContent() {
     return CacheStore.print();
+  }
+
+  /**
+   * Cache-Aside save user account helper
+   */
+  private static void saveAside(UserAccount userAccount) {
+    DbManager.updateDb(userAccount);
+    CacheStore.invalidate(userAccount.getUserId());
+  }
+
+  /**
+   * Cache-Aside find user account helper
+   */
+  private static UserAccount findAside(String userId) {
+    UserAccount userAccount = CacheStore.get(userId);
+    if (userAccount != null) {
+      return userAccount;
+    }
+
+    userAccount = DbManager.readFromDb(userId);
+    if (userAccount != null) {
+      CacheStore.set(userId, userAccount);
+    }
+
+    return userAccount;
   }
 }
